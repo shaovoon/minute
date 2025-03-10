@@ -4,7 +4,7 @@
 void CompareNumbers()
 {
     int num1 = 12;
-	int num2 = 14;
+	int num2 = 12;
 	CHECK(num1, == , num2);
 
 	CHECK(++num1, == , ++num2);

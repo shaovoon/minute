@@ -1,6 +1,0 @@
-2024-02-02 10:00:00 Application startup
-2024-02-02 10:00:10 REGISTER Name: George, Age: 25
-2024-02-02 10:00:10 REGISTER Name: Peter, Age: 24
-2024-02-02 10:00:25 Application running!
-2024-02-02 10:00:30 LOGIN Name: Jane, Age: 32
-2024-02-02 10:20:00 Application shutdown!

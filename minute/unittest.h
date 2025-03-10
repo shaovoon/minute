@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <iostream>
 #include <memory>
-#include "conv.h"
+#include <sstream>
 
 class UnitTest
 {
@@ -186,9 +186,14 @@ private:
 #endif
 
 #define CHECK(op1, compare, op2)                                                 \
-    {   auto v1 = op1; auto v2 = op2;                                            \
-        UnitTest::Check((v1 compare v2), #op1, #compare, #op2,                   \
-                        conv::to_str(v1), conv::to_str(v2), __FILE__, __LINE__, MINUTE_FUNCTION); \
+    {   auto v1 = op1; auto v2 = op2; auto res = (v1 compare v2);                \
+        if (!res)                                                                \
+        {                                                                        \
+            std::ostringstream oss1; oss1 << v1;                                 \
+            std::ostringstream oss2; oss2 << v2;                                 \
+            UnitTest::Check((v1 compare v2), #op1, #compare, #op2,               \
+	            oss1.str(), oss2.str(), __FILE__, __LINE__, MINUTE_FUNCTION);    \
+        }                                                                        \
     }
 
 #define CHECK_EXP_THROW(op, exception)              \
@@ -205,8 +210,9 @@ private:
     if (thrown == false)                            \
     {                                               \
         char buf[2000];                             \
-        snprintf(buf, sizeof(buf), "    %s (line #%d): CHECK_EXP_THROW(%s, %s) did not throw in %s\n",  \
-             __FILE__, __LINE__,  #op, #exception, MINUTE_FUNCTION); \
+        snprintf(buf, sizeof(buf),                  \
+             "    %s (line #%d): CHECK_EXP_THROW(%s, %s) did not throw in %s\n",  \
+             __FILE__, __LINE__,  #op, #exception, MINUTE_FUNCTION);              \
         UnitTest::Print(buf);                       \
         UnitTest::SetError(true);                   \
     }                                               \
