@@ -1,11 +1,12 @@
 #pragma once
 #include <vector>
 #include <functional>
-#include <string>
 #include <unordered_map>
+#include <string>
 #include <iostream>
-#include <memory>
 #include <sstream>
+#include <memory>
+#include <ctime>
 
 class UnitTest
 {
@@ -56,14 +57,14 @@ public:
 					++local_errors;
 					fprintf(stderr, "Unknown Exception thrown while testing %s, Exception message: %s\n", pr.first.c_str(), e.what());
 					if (File)
-						fprintf(File, "Unknown Exception thrown while testing %s, Exception message: %s\n", pr.first.c_str(), e.what());
+						fprintf(File, "%s: Unknown Exception thrown while testing %s, Exception message: %s\n", GetTimestamp().c_str(), pr.first.c_str(), e.what());
 				}
 				catch (...)
 				{
 					++local_errors;
 					fprintf(stderr, "Unknown Exception thrown while testing %s\n", pr.first.c_str());
 					if (File)
-						fprintf(File, "Unknown Exception thrown while testing %s\n", pr.first.c_str());
+						fprintf(File, "%s: Unknown Exception thrown while testing %s\n", GetTimestamp().c_str(), pr.first.c_str());
 				}
 			}
 			errors += local_errors;
@@ -123,13 +124,13 @@ public:
 		if (result == false)
 		{
 			UnitTest::SetError(true);
-			printf("    %s (line #%d): %s:", file, line_num, func);
+			printf("%s (line #%d): %s:", file, line_num, func);
 			printf("CHECK(%s %s %s) \033[91mfailed\033[0m: ", op1, compare, op2);
 			printf("(%s %s %s)\n", a.c_str(), compare, b.c_str());
 
 			if (File)
 			{
-				fprintf(File, "    %s (line #%d): %s:", file, line_num, func);
+				fprintf(File, "%s: %s (line #%d): %s:", GetTimestamp().c_str(), file, line_num, func);
 				fprintf(File, "CHECK(%s %s %s) failed: ", op1, compare, op2);
 				fprintf(File, "(%s %s %s)\n", a.c_str(), compare, b.c_str());
 			}
@@ -167,11 +168,54 @@ public:
 		printf("%s", text);
 		if (File)
 		{
-			fprintf(File, "%s", text);
+			fprintf(File, "%s: %s", GetTimestamp().c_str(), text);
 		}
+	}
+	static void EnableTimestamp(bool enable)
+	{
+		Timestamp = enable;
+	}
+	static bool IsTimestampEnabled()
+	{
+		return Timestamp;
+	}
+	static std::string GetTimestamp()
+	{
+		std::string str;
+		if (Timestamp == false)
+			return {};
+
+#ifdef _MSC_VER
+		tm t;
+		char buf[200];
+
+		time_t e = time(NULL);
+		errno_t error = localtime_s(&t, &e);
+
+		if (error)
+			return {};
+
+		snprintf(buf, sizeof(buf), "%04d-%02d-%02d %02d:%02d:%02d",
+			t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec);
+
+		str = buf;
+#else
+		struct tm temp;
+		char buf[200];
+
+		time_t e = time(NULL);
+		struct tm* d = localtime_r(&e, &temp);
+
+		snprintf(buf, sizeof(buf), "%04d-%02d-%02d %02d:%02d:%02d",
+			d->tm_year + 1900, d->tm_mon + 1, d->tm_mday, d->tm_hour, d->tm_min, d->tm_sec);
+
+		str = buf;
+#endif
+		return str;
 	}
 private:
 	static inline FILE* File = nullptr;
+	static inline bool Timestamp = false;
 	static inline bool Error = false;
 	static inline std::unordered_map<std::string,
 	std::vector<std::pair<std::string, std::function<void()> > > > TestList;
@@ -211,8 +255,8 @@ private:
     {                                               \
         char buf[2000];                             \
         snprintf(buf, sizeof(buf),                  \
-             "    %s (line #%d): CHECK_EXP_THROW(%s, %s) did not throw in %s\n",  \
-             __FILE__, __LINE__,  #op, #exception, MINUTE_FUNCTION);              \
+             "%s (line #%d): CHECK_EXP_THROW(%s, %s) did not throw in %s\n",  \
+              __FILE__, __LINE__,  #op, #exception, MINUTE_FUNCTION);         \
         UnitTest::Print(buf);                       \
         UnitTest::SetError(true);                   \
     }                                               \

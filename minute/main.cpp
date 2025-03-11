@@ -4,7 +4,7 @@
 void CompareNumbers()
 {
     int num1 = 12;
-	int num2 = 12;
+	int num2 = 13;
 	CHECK(num1, == , num2);
 
 	CHECK(++num1, == , ++num2);
@@ -22,6 +22,7 @@ void CheckExceptionThrown()
 
 int main()
 {
+	UnitTest::EnableTimestamp(true);
 	UnitTest::SetResultFilePath("d:\\temp2\\unit_tests.txt"); // optional
     UnitTest::Add("AppSuite", "CompareNumbers", CompareNumbers);
 	UnitTest::Add("AppSuite", "CheckExceptionThrown", CheckExceptionThrown);
