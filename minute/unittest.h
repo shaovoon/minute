@@ -130,7 +130,7 @@ public:
 
 			if (File)
 			{
-				fprintf(File, "%s: %s (line #%d): %s:", GetTimestamp().c_str(), file, line_num, func);
+				fprintf(File, "%s%s (line #%d): %s:", GetTimestamp().c_str(), file, line_num, func);
 				fprintf(File, "CHECK(%s %s %s) failed: ", op1, compare, op2);
 				fprintf(File, "(%s %s %s)\n", a.c_str(), compare, b.c_str());
 			}
@@ -168,7 +168,7 @@ public:
 		printf("%s", text);
 		if (File)
 		{
-			fprintf(File, "%s: %s", GetTimestamp().c_str(), text);
+			fprintf(File, "%s%s", GetTimestamp().c_str(), text);
 		}
 	}
 	static void EnableTimestamp(bool enable)
@@ -195,7 +195,7 @@ public:
 		if (error)
 			return {};
 
-		snprintf(buf, sizeof(buf), "%04d-%02d-%02d %02d:%02d:%02d",
+		snprintf(buf, sizeof(buf), "%04d-%02d-%02d %02d:%02d:%02d: ",
 			t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec);
 
 		str = buf;
