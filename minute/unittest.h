@@ -57,14 +57,14 @@ public:
 					++local_errors;
 					fprintf(stderr, "Unknown Exception thrown while testing %s, Exception message: %s\n", pr.first.c_str(), e.what());
 					if (File)
-						fprintf(File, "%s: Unknown Exception thrown while testing %s, Exception message: %s\n", GetTimestamp().c_str(), pr.first.c_str(), e.what());
+						fprintf(File, "%sUnknown Exception thrown while testing %s, Exception message: %s\n", GetTimestamp().c_str(), pr.first.c_str(), e.what());
 				}
 				catch (...)
 				{
 					++local_errors;
 					fprintf(stderr, "Unknown Exception thrown while testing %s\n", pr.first.c_str());
 					if (File)
-						fprintf(File, "%s: Unknown Exception thrown while testing %s\n", GetTimestamp().c_str(), pr.first.c_str());
+						fprintf(File, "%sUnknown Exception thrown while testing %s\n", GetTimestamp().c_str(), pr.first.c_str());
 				}
 			}
 			errors += local_errors;
