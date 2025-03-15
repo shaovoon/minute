@@ -7,6 +7,7 @@
 #include <sstream>
 #include <memory>
 #include <ctime>
+#include <chrono>
 
 class UnitTest
 {
@@ -21,34 +22,48 @@ public:
 	{
 		int errors = 0;
 		int local_errors = 0;
+		long long totalTime = 0;
+		size_t totalTests = CountTests();
+
+		printf("[==========] Running %zu tests from %zu test suites.\n", totalTests, TestList.size());
+		if (File)
+			fprintf(File, "[==========] Running %zu tests from %zu test suites.\n", totalTests, TestList.size());
+
+
 		for (auto& list : TestList)
 		{
 			local_errors = 0;
-			printf("[%s] running\n", list.first.c_str());
+			printf("[----------] %zu tests from %s\n", list.second.size(), list.first.c_str());
 			if (File)
-				fprintf(File, "[%s] running\n", list.first.c_str());
+				fprintf(File, "[----------] %zu tests from %s\n", list.second.size(), list.first.c_str());
 
+			long long suiteTime = 0;
 			for (auto& pr : list.second)
 			{
-				printf("%s: running\n", pr.first.c_str());
+				printf("[ RUN      ] %s.%s\n", list.first.c_str(), pr.first.c_str());
 				if (File)
 					fprintf(File, "%s: running\n", pr.first.c_str());
 
 				try
 				{
 					Error = false;
+					std::chrono::high_resolution_clock::time_point beginTime = std::chrono::high_resolution_clock::now();
 					pr.second();
+					std::chrono::high_resolution_clock::time_point endTime = std::chrono::high_resolution_clock::now();
+					auto dur = endTime - beginTime;
+					auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
+					suiteTime += ms;
 					if (Error == false)
 					{
-						printf("%s: \033[92mpassed!\033[0m\n", pr.first.c_str());
+						printf("[       \033[92mOK\033[0m ] %s.%s (%lld ms)\n", list.first.c_str(), pr.first.c_str(), ms);
 						if (File)
-							fprintf(File, "%s: passed!\n", pr.first.c_str());
+							fprintf(File, "[       OK ] %s.%s (%lld ms)\n", list.first.c_str(), pr.first.c_str(), ms);
 					}
 					else
 					{
-						printf("%s: \033[91mfailed!\033[0m\n", pr.first.c_str());
+						printf("[     \033[91mFAIL\033[0m ] %s.%s (%lld ms)\n", list.first.c_str(), pr.first.c_str(), ms);
 						if (File)
-							fprintf(File, "%s: failed!\n", pr.first.c_str());
+							fprintf(File, "[     FAIL ] %s.%s (%lld ms)\n", list.first.c_str(), pr.first.c_str(), ms);
 						++local_errors;
 					}
 				}
@@ -70,27 +85,32 @@ public:
 			errors += local_errors;
 			size_t local_count = list.second.size();
 
-			printf("\n[%s] ", list.first.c_str());
-			if (File)
-				fprintf(File, "\n[%s] ", list.first.c_str());
+			printf("[----------] %zu tests from %s (%llu ms total)\n\n", list.second.size(), list.first.c_str(), suiteTime);
 
-			printf("%s%zu / %zu passed!\033[0m\n", GetClr(local_errors == 0), local_count - local_errors, local_count);
 			if (File)
-				fprintf(File, "%zu / %zu passed!\n", local_count - local_errors, local_count);
+				fprintf(File, "[----------] %zu tests from %s (%llu ms total)\n\n", list.second.size(), list.first.c_str(), suiteTime);
+
+			totalTime += suiteTime;
 		}
-		size_t count = CountTests();
 
-		printf("%s\nTotal: %zu / %zu passed!\033[0m\n", GetClr(errors == 0), count - errors, count);
-
+		printf("[==========] Running %zu tests from %zu test suites ran. (%llu ms total)\n", totalTests, TestList.size(), totalTime);
 		if (File)
-			fprintf(File, "\nTotal: %zu / %zu passed!\n", count - errors, count);
+			fprintf(File, "[==========] Running %zu tests from %zu test suites ran. (%llu ms total)\n", totalTests, TestList.size(), totalTime);
+
 
 		if (errors == 0)
 		{
-			printf("\n\033[92mALL PASSED!\033[0m\n");
+			printf("\n[  \033[92mPASSED\033[0m  ] %zu tests.\n", totalTests);
 			if (File)
-				fprintf(File, "\nALL PASSED!\n");
+				fprintf(File, "\n[  PASSED  ] %zu tests.\n", totalTests);
 		}
+		else
+		{
+			printf("\n[  \033[91mFAILED\033[0m  ] %d / %zu tests failed.\n", errors, totalTests);
+			if (File)
+				fprintf(File, "\n[  FAILED  ] %d / %zu tests failed.\n", errors, totalTests);
+		}
+
 		if (File)
 		{
 			fflush(File);
