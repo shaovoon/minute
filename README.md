@@ -1,5 +1,43 @@
 # C++ MIN Unit Test Easier (MINUTE)
 
+## Remove C++17 Requirements
+
+First open `unittest.h` and scroll down to its data members.
+
+```Cpp
+static inline FILE* File = nullptr;
+static inline bool Timestamp = false;
+static inline bool Error = false;
+static inline std::unordered_map<std::string,
+	std::vector<std::pair<std::string, std::function<void()> > > > TestList;
+```
+
+And edit them into 
+
+```Cpp
+static FILE* File;
+static bool Timestamp;
+static bool Error;
+static std::unordered_map<std::string,
+	std::vector<std::pair<std::string, std::function<void()> > > > TestList;
+```
+
+Then create a unittest.cpp and add these lines.
+
+```Cpp
+#include "unittest.h"
+
+FILE* UnitTest::File = nullptr;
+bool UnitTest::Timestamp = false;
+bool UnitTest::Error = false;
+std::unordered_map<std::string,
+    std::vector<std::pair<std::string, std::function<void()> > > > UnitTest::TestList;
+```
+
+Now you have downgrade the C++17 to C++11 but the library is no longer header-only and requires a `unittest.cpp`.
+
+## Tutorial
+
 Existing unit test frameworks create many invisible arbitrary-named claesses and foist a paradigm on developer. For example, which parameters are the actual or expected values. This header-only 300 lines UT library does not do that. It is up to dev to determine which is the actual and expected values. Only free function is supported (no member function) since I do not need fixture setup and teardown.
 
 Only two macros are supported: `CHECK` and `CHECK_EXP_THROW`. Common mistake for `CHECK` is forget to put commas around the 2nd parameter.
