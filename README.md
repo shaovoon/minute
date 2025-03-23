@@ -9,7 +9,7 @@ static inline FILE* File = nullptr;
 static inline bool Timestamp = false;
 static inline bool Error = false;
 static inline std::unordered_map<std::string,
-	std::vector<std::pair<std::string, std::function<void()> > > > TestList;
+    std::vector<std::pair<std::string, std::function<void()> > > > TestList;
 ```
 
 And edit them into 
@@ -19,7 +19,7 @@ static FILE* File;
 static bool Timestamp;
 static bool Error;
 static std::unordered_map<std::string,
-	std::vector<std::pair<std::string, std::function<void()> > > > TestList;
+    std::vector<std::pair<std::string, std::function<void()> > > > TestList;
 ```
 
 Then create a unittest.cpp and add these lines.
@@ -49,27 +49,27 @@ Only two macros are supported: `CHECK` and `CHECK_EXP_THROW`. Common mistake for
 void CompareNumbers()
 {
     int num1 = 12;
-	int num2 = 12;
+    int num2 = 12;
 
     CHECK(num1, == , num2);
 
-	CHECK(++num1, == , ++num2);
+    CHECK(++num1, == , ++num2);
 }
 
 void CheckExceptionThrown()
 {
-	CHECK_EXP_THROW(throw std::runtime_error("error"), std::runtime_error);
+    CHECK_EXP_THROW(throw std::runtime_error("error"), std::runtime_error);
 }
 
 int main()
 {
-	UnitTest::EnableTimestamp(true); // Enable timestamp for file output
-	UnitTest::SetResultFilePath("d:\\temp2\\unit_tests.txt"); // optional
+    UnitTest::EnableTimestamp(true); // Enable timestamp for file output
+    UnitTest::SetResultFilePath("d:\\temp2\\unit_tests.txt"); // optional
 
     UnitTest::Add("AppSuite", "CompareNumbers", CompareNumbers);
-	UnitTest::Add("AppSuite", "CheckExceptionThrown", CheckExceptionThrown);
-	
-	// RunAllTests() return number of errors
+    UnitTest::Add("AppSuite", "CheckExceptionThrown", CheckExceptionThrown);
+    
+    // RunAllTests() return number of errors
     return UnitTest::RunAllTests();
 }
 ```
