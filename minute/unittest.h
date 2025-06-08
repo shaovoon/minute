@@ -15,6 +15,10 @@
 #include <ctime>
 #include <chrono>
 
+#ifdef _MSC_VER
+    #include <Windows.h>
+#endif
+
 class UnitTest
 {
 public:
@@ -26,6 +30,10 @@ public:
 	// return number of errors
 	static int RunAllTests()
 	{
+#ifdef _MSC_VER
+		DebuggerPresent = ::IsDebuggerPresent();
+#endif
+
 		int errors = 0;
 		int local_errors = 0;
 		long long totalTime = 0;
@@ -150,16 +158,29 @@ public:
 		if (result == false)
 		{
 			UnitTest::SetError(true);
-			printf("%s (line #%d): %s:", file, line_num, func);
+			printf("%s (%d, 1): %s: ", file, line_num, func);
 			printf("CHECK(%s %s %s) \033[91mfailed\033[0m: ", op1, compare, op2);
 			printf("(%s %s %s)\n", a.c_str(), compare, b.c_str());
 
 			if (File)
 			{
-				fprintf(File, "%s%s (line #%d): %s:", GetTimestamp().c_str(), file, line_num, func);
+				fprintf(File, "%s%s (%d, 1): %s: ", GetTimestamp().c_str(), file, line_num, func);
 				fprintf(File, "CHECK(%s %s %s) failed: ", op1, compare, op2);
 				fprintf(File, "(%s %s %s)\n", a.c_str(), compare, b.c_str());
 			}
+
+#ifdef _MSC_VER
+			if (DebuggerPresent)
+			{
+				char buf[256];
+				snprintf(buf, sizeof(buf), "%s (%d, 1): %s: ", file, line_num, func);
+				OutputDebugStringA(buf);
+				snprintf(buf, sizeof(buf), "CHECK(%s %s %s) failed: ", op1, compare, op2);
+				OutputDebugStringA(buf);
+				snprintf(buf, sizeof(buf), "(%s %s %s)\n", a.c_str(), compare, b.c_str());
+				OutputDebugStringA(buf);
+			}
+#endif
 		}
 	}
 	static bool SetResultFilePath(const char* path)
@@ -196,6 +217,12 @@ public:
 		{
 			fprintf(File, "%s%s", GetTimestamp().c_str(), text);
 		}
+#ifdef _MSC_VER
+		if (DebuggerPresent)
+		{
+			OutputDebugStringA(text);
+		}
+#endif
 	}
 	static void EnableTimestamp(bool enable)
 	{
@@ -245,6 +272,9 @@ private:
 	static inline bool Error = false;
 	static inline std::unordered_map<std::string,
 	std::vector<std::pair<std::string, std::function<void()> > > > TestList;
+#ifdef _MSC_VER
+	static inline bool DebuggerPresent = false;
+#endif
 };
 
 #if defined(__GNUC__)
@@ -281,8 +311,8 @@ private:
     {                                               \
         char buf[2000];                             \
         snprintf(buf, sizeof(buf),                  \
-             "%s (line #%d): CHECK_EXP_THROW(%s, %s) did not throw in %s\n",  \
-              __FILE__, __LINE__,  #op, #exception, MINUTE_FUNCTION);         \
+             "%s (%d, 1): %s: CHECK_EXP_THROW(%s, %s) did not throw %s\n",  \
+              __FILE__, __LINE__, MINUTE_FUNCTION, #op, #exception, #exception);         \
         UnitTest::Print(buf);                       \
         UnitTest::SetError(true);                   \
     }                                               \

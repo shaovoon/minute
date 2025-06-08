@@ -4,7 +4,7 @@
 void CompareNumbers()
 {
     int num1 = 12;
-	int num2 = 12;
+	int num2 = 13;
 	CHECK(num1, == , num2);
 
 	CHECK(++num1, == , ++num2);
@@ -12,7 +12,8 @@ void CompareNumbers()
 
 void CheckExceptionThrown()
 {
-	CHECK_EXP_THROW(throw std::runtime_error("error"), std::runtime_error);
+	//CHECK_EXP_THROW(throw std::runtime_error("error"), std::runtime_error);
+	CHECK_EXP_THROW(1 + 1, std::runtime_error);
 }
 
 int main()
