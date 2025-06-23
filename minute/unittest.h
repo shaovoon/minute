@@ -158,13 +158,13 @@ public:
 		if (result == false)
 		{
 			UnitTest::SetError(true);
-			printf("%s (%d, 1): %s: ", file, line_num, func);
+			printf("%s (%d): %s: ", file, line_num, func);
 			printf("CHECK(%s %s %s) \033[91mfailed\033[0m: ", op1, compare, op2);
 			printf("(%s %s %s)\n", a.c_str(), compare, b.c_str());
 
 			if (File)
 			{
-				fprintf(File, "%s%s (%d, 1): %s: ", GetTimestamp().c_str(), file, line_num, func);
+				fprintf(File, "%s%s (%d): %s: ", GetTimestamp().c_str(), file, line_num, func);
 				fprintf(File, "CHECK(%s %s %s) failed: ", op1, compare, op2);
 				fprintf(File, "(%s %s %s)\n", a.c_str(), compare, b.c_str());
 			}
@@ -173,7 +173,7 @@ public:
 			if (DebuggerPresent)
 			{
 				char buf[256];
-				snprintf(buf, sizeof(buf), "%s (%d, 1): %s: ", file, line_num, func);
+				snprintf(buf, sizeof(buf), "%s (%d): %s: ", file, line_num, func);
 				OutputDebugStringA(buf);
 				snprintf(buf, sizeof(buf), "CHECK(%s %s %s) failed: ", op1, compare, op2);
 				OutputDebugStringA(buf);
@@ -311,7 +311,7 @@ private:
     {                                               \
         char buf[2000];                             \
         snprintf(buf, sizeof(buf),                  \
-             "%s (%d, 1): %s: CHECK_EXP_THROW(%s, %s) did not throw %s\n",  \
+             "%s (%d): %s: CHECK_EXP_THROW(%s, %s) did not throw %s\n",  \
               __FILE__, __LINE__, MINUTE_FUNCTION, #op, #exception, #exception);         \
         UnitTest::Print(buf);                       \
         UnitTest::SetError(true);                   \
