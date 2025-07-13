@@ -190,8 +190,11 @@ public:
 			fclose(File);
 			File = nullptr;
 		}
+#ifdef _MSC_VER
+		fopen_s(&File, path, "wt");
+#else
 		File = fopen(path, "wt");
-
+#endif
 		return File != nullptr;
 	}
 	static void CloseFile()
