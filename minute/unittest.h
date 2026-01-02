@@ -67,6 +67,23 @@ public:
 					auto dur = endTime - beginTime;
 					auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
 					suiteTime += ms;
+
+
+#ifdef __linux__
+					if (Error == false)
+					{
+						printf("[       \033[92mOK\033[0m ] %s.%s (%ld ms)\n", list.first.c_str(), pr.first.c_str(), ms);
+						if (File)
+							fprintf(File, "[       OK ] %s.%s (%ld ms)\n", list.first.c_str(), pr.first.c_str(), ms);
+					}
+					else
+					{
+						printf("[     \033[91mFAIL\033[0m ] %s.%s (%ld ms)\n", list.first.c_str(), pr.first.c_str(), ms);
+						if (File)
+							fprintf(File, "[     FAIL ] %s.%s (%ld ms)\n", list.first.c_str(), pr.first.c_str(), ms);
+						++local_errors;
+					}
+#else
 					if (Error == false)
 					{
 						printf("[       \033[92mOK\033[0m ] %s.%s (%lld ms)\n", list.first.c_str(), pr.first.c_str(), ms);
@@ -80,6 +97,7 @@ public:
 							fprintf(File, "[     FAIL ] %s.%s (%lld ms)\n", list.first.c_str(), pr.first.c_str(), ms);
 						++local_errors;
 					}
+#endif
 				}
 				catch (std::exception& e)
 				{
